@@ -1,0 +1,11 @@
+.env
+CLAUDE.md
+venv/
+.venv/
+outputs/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.DS_Store
