@@ -1,41 +1,105 @@
-# Datalyst Agent
+<div align="center">
 
-> An autonomous data analysis agent powered by **smolagents** + **Google Gemini 2.5 Flash** that takes any CSV file, explores it, writes and executes its own analysis code, generates charts, and produces a structured report — all without human intervention.
+# 🔬 Datalyst Agent
 
----
+### Autonomous CSV Data Analysis — Powered by AI
 
-## What It Does
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![smolagents](https://img.shields.io/badge/smolagents-1.24%2B-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://github.com/huggingface/smolagents)
+[![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-Drop in a CSV file. The agent figures out the rest.
+**Drop in any CSV. Get a full analysis report, charts, and insights — automatically.**
 
-It follows a structured analysis protocol end-to-end:
+*The agent writes and executes its own Python code to explore your data.*
 
-1. **Loads** the CSV and inspects shape, dtypes, and missing values
-2. **Classifies** every column (numeric / categorical / datetime / text)
-3. **Computes** descriptive statistics for all numeric columns
-4. **Detects outliers** per column using the IQR method
-5. **Analyzes distributions** of categorical columns (value counts + frequencies)
-6. **Computes** a Pearson correlation matrix
-7. **Generates charts**: histograms with KDE, correlation heatmap, bar charts, missing value chart
-8. **Writes** a structured analysis summary with all findings and chart paths
+</div>
 
 ---
 
-## Why It's Interesting
+## What Is This?
 
-Most AI data tools ask the model to *describe* what to do. This one asks the model to *write and execute Python code* as its action — the core differentiator of [smolagents'](https://github.com/huggingface/smolagents) `CodeAgent`. The agent reasons, writes pandas/matplotlib code, runs it, reads the output, and adapts — in a live Thought → Code → Observation loop.
+**Datalyst Agent** is an agentic data analysis pipeline built on [smolagents](https://github.com/huggingface/smolagents) (HuggingFace) and **Google Gemini 2.5 Flash**. You point it at a CSV file; it autonomously runs through a complete analysis protocol — writing and executing pandas code at each step, generating matplotlib/seaborn charts, and producing a structured written report.
+
+> **The key differentiator:** smolagents' `CodeAgent` doesn't just *describe* what to do — it *writes Python code* as its action and *executes it live*. Every step is a real Thought → Code → Observation loop running in a sandboxed interpreter.
+
+---
+
+## Sample Output
+
+*The following charts were generated autonomously by the agent on the bundled sales dataset:*
+
+<table>
+  <tr>
+    <td align="center"><b>Correlation Heatmap</b></td>
+    <td align="center"><b>Revenue Distribution</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/correlation_heatmap.png" width="420"/></td>
+    <td><img src="docs/images/hist_revenue.png" width="420"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Units Sold — Outlier Detection</b></td>
+    <td align="center"><b>Product Category Breakdown</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/hist_units_sold.png" width="420"/></td>
+    <td><img src="docs/images/bar_product_category.png" width="420"/></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><b>Missing Values Overview</b></td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2"><img src="docs/images/missing_values.png" width="500"/></td>
+  </tr>
+</table>
+
+---
+
+## How It Works
+
+The agent follows an 11-step analysis protocol, end-to-end, without any human intervention:
+
+```
+Step 1  →  Load CSV            shape, dtypes, missing value counts
+Step 2  →  Schema detection    classify each column: numeric / categorical / datetime / text
+Step 3  →  Descriptive stats   mean, median, std, min, max, Q1, Q3, skewness, kurtosis
+Step 4  →  Outlier detection   IQR method for every numeric column
+Step 5  →  Value counts        top-N frequency analysis for every categorical column
+Step 6  →  Correlation matrix  Pearson correlations across all numeric columns
+Step 7  →  Histograms          distribution + KDE overlay per numeric column → PNG
+Step 8  →  Heatmap             annotated correlation heatmap → PNG
+Step 9  →  Bar charts          top-N category frequencies → PNG
+Step 10 →  Missing values      missing % per column → PNG
+Step 11 →  Summary report      structured analysis_summary.txt with all findings
+```
+
+The terminal streams every step live:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 4 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ─ Executing parsed code: ──────────────────────────────────────────────────────
+  for col in numeric_columns:
+      outliers = detect_outliers_iqr(filepath=csv_filepath, column=col)
+      print(outliers)
+ ───────────────────────────────────────────────────────────────────────────────
+Execution logs:
+{"column": "units_sold", "outlier_count": 8, "outlier_pct": 2.67,
+ "outlier_sample": [506, 523, 501, 879, 522, 760, 616, 625]}
+[Step 4: Duration 12.31 seconds | Input tokens: 26,447 | Output tokens: 1,438]
+```
 
 ---
 
 ## Tech Stack
 
-| Component | Technology |
+| Layer | Technology |
 |---|---|
-| Agent framework | [smolagents](https://github.com/huggingface/smolagents) (HuggingFace) |
-| LLM | Google Gemini 2.5 Flash via [LiteLLM](https://github.com/BerriAI/litellm) |
-| Data processing | pandas, numpy |
-| Visualizations | matplotlib, seaborn |
-| CLI | Python argparse + python-dotenv |
+| **Agent framework** | [smolagents](https://github.com/huggingface/smolagents) `CodeAgent` |
+| **LLM** | Google Gemini 2.5 Flash via [LiteLLM](https://github.com/BerriAI/litellm) |
+| **Data** | pandas, numpy |
+| **Visualizations** | matplotlib, seaborn |
+| **Config** | python-dotenv |
 
 ---
 
@@ -43,26 +107,30 @@ Most AI data tools ask the model to *describe* what to do. This one asks the mod
 
 ```
 datalyst-agent/
+│
 ├── data/
-│   ├── sales_data.py         # Generator: 300-row sales dataset (regions, revenue, reps)
-│   ├── weather_data.py       # Generator: 365-row weather dataset (5 cities, seasonal)
-│   └── population_data.py    # Generator: 150-row population dataset (6 continents)
+│   ├── sales_data.py         # 300-row sales dataset (regions, revenue, reps)
+│   ├── weather_data.py       # 365-row weather dataset (5 cities, seasonal temps)
+│   └── population_data.py    # 150-row population dataset (6 continents, GDP)
+│
 ├── tools/
 │   ├── data_tools.py         # load_csv_file, get_column_schema
-│   ├── stats_tools.py        # descriptive stats, outlier detection, correlations
-│   ├── chart_tools.py        # histogram, heatmap, bar charts, missing values chart
+│   ├── stats_tools.py        # descriptive stats, IQR outliers, value counts, correlation
+│   ├── chart_tools.py        # histograms, heatmap, bar charts, missing value chart
 │   └── summary_tools.py      # write_analysis_summary
-├── agent.py                  # CodeAgent + Gemini model configuration
+│
+├── docs/images/              # Sample charts (committed for README)
+├── agent.py                  # CodeAgent + ThrottledLiteLLMModel config
 ├── main.py                   # CLI entry point
 ├── requirements.txt
-└── .env                      # API key (not committed)
+└── .env                      # Your API key (not committed)
 ```
 
 ---
 
 ## Getting Started
 
-### 1. Clone & set up the environment
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/yourusername/datalyst-agent.git
@@ -73,109 +141,93 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Add your Gemini API key
+### 2. Set your API key
 
-Create a `.env` file in the project root:
-
-```
-GEMINI_API_KEY=your_key_here
+```bash
+# Create a .env file
+echo "GEMINI_API_KEY=your_key_here" > .env
 ```
 
 Get a free key at [Google AI Studio](https://aistudio.google.com/app/apikey).
 
 ### 3. Run
 
-**Analyze a bundled demo dataset:**
 ```bash
+# Analyze a bundled demo dataset
 python main.py --demo sales
 python main.py --demo weather
 python main.py --demo population
-```
 
-**Analyze your own CSV:**
-```bash
+# Analyze your own CSV
 python main.py --csv path/to/your/data.csv
-```
 
-**Just generate the demo CSVs (no analysis):**
-```bash
+# Custom output directory
+python main.py --demo sales --output my_results/
+
+# Generate demo CSVs without running analysis
 python main.py --generate-demos
 ```
 
-**Custom output directory:**
-```bash
-python main.py --demo sales --output my_results/
-```
+### Output
 
----
-
-## Example Output
-
-Running `python main.py --demo sales` produces:
+Each run creates a timestamped output directory:
 
 ```
 outputs/sales_data_analysis/
-├── analysis_summary.txt       ← structured report with all findings
+├── analysis_summary.txt
+├── correlation_heatmap.png
 ├── hist_units_sold.png
 ├── hist_unit_price.png
 ├── hist_revenue.png
 ├── hist_discount_pct.png
 ├── hist_customer_satisfaction.png
-├── correlation_heatmap.png
 ├── bar_region.png
 ├── bar_product_category.png
 ├── bar_sales_rep.png
 └── missing_values.png
 ```
 
-The agent also streams its full reasoning to the terminal in real time:
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ Step 1 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- ─ Executing parsed code: ──────────────────────────────────────────────────────
-  csv_info = load_csv_file(filepath='outputs/demo_data/sales_data.csv')
-  print(csv_info)
- ───────────────────────────────────────────────────────────────────────────────
-Execution logs:
-{"shape": [300, 9], "columns": ["date", "region", ...], ...}
-[Step 1: Duration 18.05 seconds | Input tokens: 3,501 | Output tokens: 758]
-```
-
 ---
 
 ## Demo Datasets
 
-All datasets are synthetically generated — no downloads needed.
+All datasets are synthetically generated — no external downloads required.
 
-| Dataset | Rows | Highlights |
+| Dataset | Rows | Notable Features |
 |---|---|---|
-| **Sales** | 300 | 4 regions, 5 product categories, 8 sales reps. Intentional outliers in `units_sold` and ~5% missing values in `discount_pct` to test detection. |
-| **Weather** | 365 | 5 cities, sinusoidal seasonal temperatures, exponential precipitation distribution. |
-| **Population** | 150 | 30 countries across 6 continents, right-skewed population distribution, GDP correlated with continent. |
+| **Sales** | 300 | 4 regions · 5 product categories · 8 sales reps · **intentional outliers** in `units_sold` (500–900 range) · **~5% missing** in `discount_pct` |
+| **Weather** | 365 | 5 cities · sinusoidal seasonal temperatures · exponential precipitation distribution · sparse NaNs |
+| **Population** | 150 | 30 countries · 6 continents · right-skewed population · GDP correlated with continent |
+
+The intentional outliers and missing values are there to verify the agent actually finds them.
 
 ---
 
 ## Architecture
 
 ```
-main.py  ──►  build_agent()  ──►  CodeAgent
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    │                 │                 │
-               Gemini 2.5 Flash   11 Tools         Sandbox
-               (via LiteLLM)    (pandas/mpl)     (code exec)
-                    │
-               Thought → Code → Observation loop
+                          ┌─────────────────────────────────┐
+   main.py ──► agent.py  │         CodeAgent Loop           │
+                          │                                 │
+                          │  ┌──────────┐  ┌────────────┐  │
+                          │  │  Gemini  │  │  11 Tools  │  │
+                          │  │ 2.5 Flash│  │ (pandas /  │  │
+                          │  │(LiteLLM) │  │  mpl / sns)│  │
+                          │  └────┬─────┘  └─────┬──────┘  │
+                          │       │               │         │
+                          │   Thought ──► Code ──► Observe  │
+                          │       └───────────────┘         │
+                          └─────────────────────────────────┘
 ```
 
-The `CodeAgent` writes Python code at each step, executes it in a sandboxed interpreter, reads the output, and decides the next action. Tools are plain Python functions decorated with `@tool` — no JSON schema boilerplate required.
+Each tool is a plain Python function decorated with `@tool`. The agent decides which tools to call, writes the code to call them, and adapts based on the output — no rigid orchestration required.
 
 ---
 
 ## Requirements
 
 - Python 3.10+
-- Google Gemini API key (free tier works, paid recommended for longer runs)
+- Google Gemini API key
 
 ```
 smolagents>=1.24.0
