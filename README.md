@@ -31,26 +31,20 @@
 
 <table>
   <tr>
+    <td align="center"><b>Revenue by Region &amp; Product Category</b></td>
+    <td align="center"><b>Units Sold vs Revenue (with Regression)</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/images/stacked_region_by_product_category.png" width="420"/></td>
+    <td><img src="docs/images/scatter_units_sold_vs_revenue.png" width="420"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Product Category Mix</b></td>
     <td align="center"><b>Correlation Heatmap</b></td>
-    <td align="center"><b>Revenue Distribution</b></td>
   </tr>
   <tr>
+    <td><img src="docs/images/pie_product_category.png" width="420"/></td>
     <td><img src="docs/images/correlation_heatmap.png" width="420"/></td>
-    <td><img src="docs/images/hist_revenue.png" width="420"/></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Units Sold — Outlier Detection</b></td>
-    <td align="center"><b>Product Category Breakdown</b></td>
-  </tr>
-  <tr>
-    <td><img src="docs/images/hist_units_sold.png" width="420"/></td>
-    <td><img src="docs/images/bar_product_category.png" width="420"/></td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2"><b>Missing Values Overview</b></td>
-  </tr>
-  <tr>
-    <td align="center" colspan="2"><img src="docs/images/missing_values.png" width="500"/></td>
   </tr>
 </table>
 
@@ -58,7 +52,7 @@
 
 ## How It Works
 
-The agent follows an 11-step analysis protocol, end-to-end, without any human intervention:
+The agent follows a 16-step analysis protocol, end-to-end, without any human intervention:
 
 ```
 Step 1  →  Load CSV            shape, dtypes, missing value counts
@@ -71,7 +65,12 @@ Step 7  →  Histograms          distribution + KDE overlay per numeric column �
 Step 8  →  Heatmap             annotated correlation heatmap → PNG
 Step 9  →  Bar charts          top-N category frequencies → PNG
 Step 10 →  Missing values      missing % per column → PNG
-Step 11 →  Summary report      structured analysis_summary.txt with all findings
+Step 11 →  Pie / donut charts  share breakdown for low-cardinality categoricals → PNG
+Step 12 →  Box plots           distribution spread, optionally grouped by a categorical → PNG
+Step 13 →  Stacked bar chart   [conditional] cross-tabulation of two categoricals → PNG
+Step 14 →  Time series         [conditional] line chart over a datetime column → PNG
+Step 15 →  Scatter + regression[conditional] scatter with R² line for correlated pairs → PNG
+Step 16 →  Summary report      structured analysis_summary.txt with all findings
 ```
 
 The terminal streams every step live:
@@ -116,7 +115,7 @@ datalyst-agent/
 ├── tools/
 │   ├── data_tools.py         # load_csv_file, get_column_schema
 │   ├── stats_tools.py        # descriptive stats, IQR outliers, value counts, correlation
-│   ├── chart_tools.py        # histograms, heatmap, bar charts, missing value chart
+│   ├── chart_tools.py        # histograms, heatmap, bar charts, pie/donut, box plots, time series, scatter+regression
 │   └── summary_tools.py      # write_analysis_summary
 │
 ├── docs/images/              # Sample charts (committed for README)
@@ -176,15 +175,14 @@ Each run creates a timestamped output directory:
 outputs/sales_data_analysis/
 ├── analysis_summary.txt
 ├── correlation_heatmap.png
-├── hist_units_sold.png
-├── hist_unit_price.png
-├── hist_revenue.png
-├── hist_discount_pct.png
-├── hist_customer_satisfaction.png
-├── bar_region.png
-├── bar_product_category.png
-├── bar_sales_rep.png
-└── missing_values.png
+├── hist_units_sold.png          # + one per numeric column
+├── bar_region.png               # + one per categorical column
+├── missing_values.png
+├── pie_region.png               # + one per low-cardinality categorical
+├── box_revenue_by_region.png    # + one per numeric column (grouped)
+├── stacked_region_by_product_category.png
+├── timeseries_date.png          # if a datetime column exists
+└── scatter_units_sold_vs_revenue.png  # if |r| ≥ 0.3 found
 ```
 
 ---
@@ -210,7 +208,7 @@ The intentional outliers and missing values are there to verify the agent actual
    main.py ──► agent.py  │         CodeAgent Loop           │
                           │                                 │
                           │  ┌──────────┐  ┌────────────┐  │
-                          │  │  Gemini  │  │  11 Tools  │  │
+                          │  │  Gemini  │  │  16 Tools  │  │
                           │  │ 2.5 Flash│  │ (pandas /  │  │
                           │  │(LiteLLM) │  │  mpl / sns)│  │
                           │  └────┬─────┘  └─────┬──────┘  │

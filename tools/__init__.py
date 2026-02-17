@@ -10,6 +10,11 @@ from tools.chart_tools import (
     save_correlation_heatmap,
     save_categorical_bar_charts,
     save_missing_values_chart,
+    save_pie_charts,
+    save_stacked_bar_chart,
+    save_box_plots,
+    save_time_series_chart,
+    save_scatter_with_regression,
 )
 from tools.summary_tools import write_analysis_summary
 
@@ -24,5 +29,10 @@ __all__ = [
     "save_correlation_heatmap",
     "save_categorical_bar_charts",
     "save_missing_values_chart",
+    "save_pie_charts",
+    "save_stacked_bar_chart",
+    "save_box_plots",
+    "save_time_series_chart",
+    "save_scatter_with_regression",
     "write_analysis_summary",
 ]
