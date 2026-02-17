@@ -24,6 +24,11 @@ from tools import (
     save_correlation_heatmap,
     save_categorical_bar_charts,
     save_missing_values_chart,
+    save_pie_charts,
+    save_stacked_bar_chart,
+    save_box_plots,
+    save_time_series_chart,
+    save_scatter_with_regression,
     write_analysis_summary,
 )
 
@@ -40,10 +45,27 @@ You are an expert data analyst. Analyze the CSV file at {csv_path} by following 
 8. save_correlation_heatmap({csv_path!r}, {output_dir!r}) — correlation heatmap
 9. save_categorical_bar_charts({csv_path!r}, {output_dir!r}, 10) — bar charts
 10. save_missing_values_chart({csv_path!r}, {output_dir!r}) — missing values chart
-11. write_analysis_summary(summary_text, {output_dir!r}) — write structured report
+11. save_pie_charts({csv_path!r}, {output_dir!r}, 10) — donut charts for low-cardinality categoricals
+12. save_box_plots({csv_path!r}, {output_dir!r}, group_col) — box plots; choose the most meaningful
+    categorical column with 3–8 unique values as group_col; pass 'NONE' if none qualifies
+13. [CONDITIONAL] save_stacked_bar_chart — ONLY if ≥2 categorical columns exist with ≤12 unique values each
+    - group_col: the categorical column with fewer unique values (X axis)
+    - stack_col: a categorical column with 3–8 unique values (stack segments)
+    - value_col: most meaningful numeric column, or 'COUNT'
+    - agg_func: 'sum' for revenue/totals, 'mean' for rates/prices, 'count' for frequencies
+14. [CONDITIONAL] save_time_series_chart — ONLY if a datetime column was found in step 2; otherwise skip entirely
+    - date_col: the datetime column identified in step 2
+    - value_cols: 2–3 most important numeric columns, comma-separated (e.g. 'revenue,units_sold')
+    - agg_period: 'ME' for ≥90-day span, 'W' for 14–89 days, 'D' for <14 days, 'NONE' to skip resampling
+15. [CONDITIONAL] save_scatter_with_regression — ONLY if any |r| ≥ 0.3 was found in step 6; otherwise skip
+    - x_col/y_col: the numeric pair with the strongest absolute correlation
+    - color_col: best low-cardinality categorical column (2–10 unique values), or 'NONE'
+16. write_analysis_summary(summary_text, {output_dir!r}) — final structured report (always last)
 
 Rules:
-- Never skip steps; complete every step in order
+- Always execute steps 1–12 in order; never skip them
+- Steps 13, 14, and 15 are conditional — only call those tools when the stated condition is met
+- Step 16 is always the final step
 - For steps 4 and 5, call the tool once per column (loop through all relevant columns)
 - Include specific numbers (counts, percentages, values) in the final summary
 - The summary must have these sections: Dataset Overview, Numeric Analysis, Categorical Analysis,
@@ -79,6 +101,11 @@ def build_agent(csv_path: str, output_dir: str = "outputs") -> CodeAgent:
             save_correlation_heatmap,
             save_categorical_bar_charts,
             save_missing_values_chart,
+            save_pie_charts,
+            save_stacked_bar_chart,
+            save_box_plots,
+            save_time_series_chart,
+            save_scatter_with_regression,
             write_analysis_summary,
         ],
         model=model,
@@ -97,6 +124,6 @@ def build_agent(csv_path: str, output_dir: str = "outputs") -> CodeAgent:
         ],
         instructions=instructions,
         planning_interval=None,
-        max_steps=30,
+        max_steps=45,
         verbosity_level=1,
     )
