@@ -119,7 +119,7 @@ datalyst-agent/
 │   └── summary_tools.py      # write_analysis_summary
 │
 ├── docs/images/              # Sample charts (committed for README)
-├── agent.py                  # CodeAgent + ThrottledLiteLLMModel config
+├── agent.py                  # CodeAgent + GeminiLiteLLMModel config
 ├── main.py                   # CLI entry point
 ├── requirements.txt
 └── .env                      # Your API key (not committed)
