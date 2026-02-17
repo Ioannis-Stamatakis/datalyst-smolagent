@@ -3,7 +3,7 @@ import time
 from smolagents import CodeAgent, LiteLLMModel
 
 
-class ThrottledLiteLLMModel(LiteLLMModel):
+class GeminiLiteLLMModel(LiteLLMModel):
     """LiteLLMModel with a fixed delay before each API call to avoid rate limits."""
 
     def __init__(self, *args, delay_seconds: int = 10, **kwargs):
@@ -76,7 +76,7 @@ Rules:
 
 
 def build_agent(csv_path: str, output_dir: str = "outputs") -> CodeAgent:
-    model = ThrottledLiteLLMModel(
+    model = GeminiLiteLLMModel(
         model_id="gemini/gemini-2.5-flash",
         api_key=os.environ["GEMINI_API_KEY"],
         temperature=0.1,
