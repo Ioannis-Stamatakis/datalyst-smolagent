@@ -57,6 +57,7 @@ The agent follows a 16-step analysis protocol, end-to-end, without any human int
 ```
 Step 1  →  Load CSV            shape, dtypes, missing value counts
 Step 2  →  Schema detection    classify each column: numeric / categorical / datetime / text
+Step 2b →  Duplicate detection flag duplicate row count and % before any stats are computed
 Step 3  →  Descriptive stats   mean, median, std, min, max, Q1, Q3, skewness, kurtosis
 Step 4  →  Outlier detection   IQR method for every numeric column
 Step 5  →  Value counts        top-N frequency analysis for every categorical column
@@ -113,7 +114,7 @@ datalyst-agent/
 │   └── population_data.py    # 150-row population dataset (6 continents, GDP)
 │
 ├── tools/
-│   ├── data_tools.py         # load_csv_file, get_column_schema
+│   ├── data_tools.py         # load_csv_file, get_column_schema, detect_duplicates
 │   ├── stats_tools.py        # descriptive stats, IQR outliers, value counts, correlation
 │   ├── chart_tools.py        # histograms, heatmap, bar charts, pie/donut, box plots, time series, scatter+regression
 │   └── summary_tools.py      # write_analysis_summary
