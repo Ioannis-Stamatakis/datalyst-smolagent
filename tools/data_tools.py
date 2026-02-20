@@ -69,3 +69,28 @@ def get_column_schema(filepath: str) -> str:
         }
 
     return json.dumps(schema, default=str)
+
+
+@tool
+def detect_duplicates(filepath: str) -> str:
+    """Detect duplicate rows in a CSV file and return a data quality summary.
+
+    Args:
+        filepath: Path to the CSV file.
+
+    Returns:
+        JSON string with total_rows, duplicate_count, duplicate_pct, and sample_duplicates.
+    """
+    df = pd.read_csv(filepath)
+    total = len(df)
+    dup_mask = df.duplicated(keep="first")
+    dup_count = int(dup_mask.sum())
+
+    result = {
+        "total_rows": total,
+        "duplicate_count": dup_count,
+        "duplicate_pct": round(dup_count / total * 100, 2) if total > 0 else 0.0,
+        "has_duplicates": dup_count > 0,
+        "sample_duplicates": df[dup_mask].head(5).to_dict(orient="records"),
+    }
+    return json.dumps(result, default=str)

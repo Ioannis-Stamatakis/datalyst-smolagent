@@ -1,4 +1,4 @@
-from tools.data_tools import load_csv_file, get_column_schema
+from tools.data_tools import load_csv_file, get_column_schema, detect_duplicates
 from tools.stats_tools import (
     compute_descriptive_stats,
     detect_outliers_iqr,
@@ -21,6 +21,7 @@ from tools.summary_tools import write_analysis_summary
 __all__ = [
     "load_csv_file",
     "get_column_schema",
+    "detect_duplicates",
     "compute_descriptive_stats",
     "detect_outliers_iqr",
     "compute_value_counts",

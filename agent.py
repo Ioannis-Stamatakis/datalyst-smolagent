@@ -16,6 +16,7 @@ class GeminiLiteLLMModel(LiteLLMModel):
 from tools import (
     load_csv_file,
     get_column_schema,
+    detect_duplicates,
     compute_descriptive_stats,
     detect_outliers_iqr,
     compute_value_counts,
@@ -37,6 +38,7 @@ You are an expert data analyst. Analyze the CSV file at {csv_path} by following 
 
 1. load_csv_file({csv_path!r}) — understand shape, columns, dtypes, missing counts
 2. get_column_schema({csv_path!r}) — classify every column as numeric/categorical/datetime/text
+2b. detect_duplicates({csv_path!r}) — check for duplicate rows; note count and % in summary
 3. compute_descriptive_stats({csv_path!r}, 'ALL_NUMERIC') — stats for all numeric columns
 4. detect_outliers_iqr({csv_path!r}, column) — run for EACH numeric column individually
 5. compute_value_counts({csv_path!r}, column, 10) — run for EACH categorical column
@@ -68,8 +70,8 @@ Rules:
 - Step 16 is always the final step
 - For steps 4 and 5, call the tool once per column (loop through all relevant columns)
 - Include specific numbers (counts, percentages, values) in the final summary
-- The summary must have these sections: Dataset Overview, Numeric Analysis, Categorical Analysis,
-  Correlations, Outliers, Missing Data, Key Findings, Chart Paths
+- The summary must have these sections: Dataset Overview (include duplicate row count and %),
+  Numeric Analysis, Categorical Analysis, Correlations, Outliers, Missing Data, Key Findings, Chart Paths
 - List all saved PNG file paths at the end of the summary
 - Output directory: {output_dir}
 """
@@ -93,6 +95,7 @@ def build_agent(csv_path: str, output_dir: str = "outputs") -> CodeAgent:
         tools=[
             load_csv_file,
             get_column_schema,
+            detect_duplicates,
             compute_descriptive_stats,
             detect_outliers_iqr,
             compute_value_counts,
