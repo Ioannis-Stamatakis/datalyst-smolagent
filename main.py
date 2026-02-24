@@ -20,8 +20,20 @@ def generate_demo_csv(demo_name: str, output_dir: str) -> str:
         from data.population_data import generate_population_data
         csv_path = os.path.join(output_dir, "population_data.csv")
         generate_population_data(csv_path)
+    elif demo_name == "ecommerce":
+        from data.ecommerce_data import generate_ecommerce_data
+        csv_path = os.path.join(output_dir, "ecommerce_data.csv")
+        generate_ecommerce_data(csv_path)
+    elif demo_name == "healthcare":
+        from data.healthcare_data import generate_healthcare_data
+        csv_path = os.path.join(output_dir, "healthcare_data.csv")
+        generate_healthcare_data(csv_path)
+    elif demo_name == "hr":
+        from data.hr_data import generate_hr_data
+        csv_path = os.path.join(output_dir, "hr_data.csv")
+        generate_hr_data(csv_path)
     else:
-        print(f"Unknown demo: {demo_name}. Choose from: sales, weather, population")
+        print(f"Unknown demo: {demo_name}. Choose from: sales, weather, population, ecommerce, healthcare, hr")
         sys.exit(1)
 
     print(f"Generated {demo_name} CSV: {csv_path}")
@@ -60,7 +72,7 @@ def main():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--demo",
-        choices=["sales", "weather", "population"],
+        choices=["sales", "weather", "population", "ecommerce", "healthcare", "hr"],
         help="Generate and analyze a bundled demo CSV",
     )
     group.add_argument(
@@ -85,7 +97,7 @@ def main():
 
     if args.generate_demos:
         demos_dir = os.path.join(args.output, "demo_data")
-        for name in ["sales", "weather", "population"]:
+        for name in ["sales", "weather", "population", "ecommerce", "healthcare", "hr"]:
             generate_demo_csv(name, demos_dir)
         print("All demo CSVs generated.")
         return
