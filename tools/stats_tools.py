@@ -89,6 +89,49 @@ def detect_outliers_iqr(filepath: str, column: str) -> str:
 
 
 @tool
+def detect_all_outliers(filepath: str) -> str:
+    """Detect outliers in all numeric columns of a CSV file using the IQR method.
+
+    Args:
+        filepath: Path to the CSV file.
+
+    Returns:
+        JSON string mapping each numeric column name to its outlier statistics.
+    """
+    df = pd.read_csv(filepath)
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+
+    results = {}
+    for col in numeric_cols:
+        series = df[col].dropna()
+        if len(series) < 2:
+            continue
+
+        q1 = float(series.quantile(0.25))
+        q3 = float(series.quantile(0.75))
+        iqr = q3 - q1
+        lower_fence = q1 - 1.5 * iqr
+        upper_fence = q3 + 1.5 * iqr
+
+        outliers = series[(series < lower_fence) | (series > upper_fence)]
+
+        results[col] = {
+            "q1": q1,
+            "q3": q3,
+            "iqr": iqr,
+            "lower_fence": lower_fence,
+            "upper_fence": upper_fence,
+            "outlier_count": int(len(outliers)),
+            "outlier_pct": round(len(outliers) / len(series) * 100, 2)
+            if len(series) > 0
+            else 0.0,
+            "outlier_sample": outliers.head(5).tolist(),
+        }
+
+    return json.dumps(results, default=str)
+
+
+@tool
 def compute_value_counts(filepath: str, column: str, top_n: int) -> str:
     """Compute value counts and frequency percentages for a categorical column.
 
@@ -116,7 +159,9 @@ def compute_value_counts(filepath: str, column: str, top_n: int) -> str:
         for val, cnt in counts.items()
     ]
 
-    return json.dumps({"column": column, "total_non_null": total, "top_values": result}, default=str)
+    return json.dumps(
+        {"column": column, "total_non_null": total, "top_values": result}, default=str
+    )
 
 
 @tool

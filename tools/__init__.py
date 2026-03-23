@@ -2,6 +2,7 @@ from tools.data_tools import load_csv_file, get_column_schema, detect_duplicates
 from tools.stats_tools import (
     compute_descriptive_stats,
     detect_outliers_iqr,
+    detect_all_outliers,
     compute_value_counts,
     compute_correlation_matrix,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "detect_duplicates",
     "compute_descriptive_stats",
     "detect_outliers_iqr",
+    "detect_all_outliers",
     "compute_value_counts",
     "compute_correlation_matrix",
     "save_distribution_histograms",
