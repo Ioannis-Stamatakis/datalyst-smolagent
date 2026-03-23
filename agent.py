@@ -13,12 +13,14 @@ class GeminiLiteLLMModel(LiteLLMModel):
     def generate(self, *args, **kwargs):
         time.sleep(self.delay_seconds)
         return super().generate(*args, **kwargs)
+
+
 from tools import (
     load_csv_file,
     get_column_schema,
     detect_duplicates,
     compute_descriptive_stats,
-    detect_outliers_iqr,
+    detect_all_outliers,
     compute_value_counts,
     compute_correlation_matrix,
     save_distribution_histograms,
@@ -40,7 +42,7 @@ You are an expert data analyst. Analyze the CSV file at {csv_path} by following 
 2. get_column_schema({csv_path!r}) — classify every column as numeric/categorical/datetime/text
 2b. detect_duplicates({csv_path!r}) — check for duplicate rows; note count and % in summary
 3. compute_descriptive_stats({csv_path!r}, 'ALL_NUMERIC') — stats for all numeric columns
-4. detect_outliers_iqr({csv_path!r}, column) — run for EACH numeric column individually
+4. detect_all_outliers({csv_path!r}) — run once for ALL numeric columns
 5. compute_value_counts({csv_path!r}, column, 10) — run for EACH categorical column
 6. compute_correlation_matrix({csv_path!r}) — Pearson correlations
 7. save_distribution_histograms({csv_path!r}, {output_dir!r}) — histograms + KDE
@@ -68,7 +70,7 @@ Rules:
 - Always execute steps 1–12 in order; never skip them
 - Steps 13, 14, and 15 are conditional — only call those tools when the stated condition is met
 - Step 16 is always the final step
-- For steps 4 and 5, call the tool once per column (loop through all relevant columns)
+- For step 5, call the tool once per column (loop through all relevant columns)
 - Include specific numbers (counts, percentages, values) in the final summary
 - The summary must have these sections: Dataset Overview (include duplicate row count and %),
   Numeric Analysis, Categorical Analysis, Correlations, Outliers, Missing Data, Key Findings, Chart Paths
@@ -97,7 +99,7 @@ def build_agent(csv_path: str, output_dir: str = "outputs") -> CodeAgent:
             get_column_schema,
             detect_duplicates,
             compute_descriptive_stats,
-            detect_outliers_iqr,
+            detect_all_outliers,
             compute_value_counts,
             compute_correlation_matrix,
             save_distribution_histograms,
